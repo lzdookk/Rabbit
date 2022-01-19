@@ -10,7 +10,7 @@ import argparse
 from bs4 import BeautifulSoup
 
 class Report(object):
-    def __init__(self, stuid, password, data_path，jinji=""):
+    def __init__(self, stuid, password, data_path，jinji):
         self.stuid = stuid
         self.password = password
         self.data_path = data_path
@@ -52,7 +52,7 @@ class Report(object):
         }
 
         url = "https://weixine.ustc.edu.cn/2020/daliy_report"
-        resp=session.post(url, data=data, headers=headers)
+        resp = session.post(url, data=data, headers=headers)
         data = session.get("https://weixine.ustc.edu.cn/2020").text
         soup = BeautifulSoup(data, 'html.parser')
         pattern = re.compile("202[0-9]-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}")
@@ -79,6 +79,7 @@ class Report(object):
         url = "https://passport.ustc.edu.cn/login?service=http%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin"
         data = {
             'model': 'uplogin.jsp',
+            'CAS_LT': CAS_LT,
             'service': 'https://weixine.ustc.edu.cn/2020/caslogin',
             'username': self.stuid,
             'password': str(self.password),
@@ -100,7 +101,7 @@ if __name__ == "__main__":
     parser.add_argument('password', help='your CAS password', type=str)
     # parser.add_argument('jinji', help='紧急联系人', type=str)
     args = parser.parse_args()
-    autorepoter = Report(stuid=args.stuid, password=args.password, data_path=args.data_path)
+    autorepoter = Report(stuid=args.stuid, password=args.password, data_path=args.data_path, jinji=args.jinji)
     count = 3
     while count != 0:
         ret = autorepoter.report()
