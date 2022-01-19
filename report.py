@@ -33,7 +33,7 @@ class Report(object):
             jinji = {
                 "jinji_lxr": "本人",
                 "jinji_guanxi": "本人",
-                "jiji_mobile": "18888888888"
+                "jiji_mobile": "18888888887"
             }
             data = {**data, **jinji}
             data["_token"]=token
