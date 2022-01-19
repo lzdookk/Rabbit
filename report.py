@@ -10,7 +10,7 @@ import argparse
 from bs4 import BeautifulSoup
 
 class Report(object):
-    def __init__(self, stuid, password, data_path，jinji):
+    def __init__(self, stuid, password, data_path, jinji):
         self.stuid = stuid
         self.password = password
         self.data_path = data_path
