@@ -28,15 +28,15 @@ class Report(object):
         with open(self.data_path, "r+") as f:
             data = f.read()
             data = json.loads(data)
-             # jinji = self.jinji
-            # jinji = json.loads(jinji)
+            jinji = self.jinji
+            jinji = json.loads(jinji)
             jinji = {
                 "jinji_lxr": "本人",
                 "jinji_guanxi": "本人",
                 "jiji_mobile": "18888888887"
             }
             data = {**data, **jinji}
-            data["_token"]=token
+            data["_token"] = token
 
         headers = {
             'authority': 'weixine.ustc.edu.cn',
@@ -88,6 +88,9 @@ class Report(object):
             'button': '',
         }
         session = requests.Session()
+        session.cookies.clear()
+        response = session.get(url)
+        CAS_LT = BeautifulSoup(response.text, 'lxml').find(attrs={'id': 'CAS_LT'}).get('value')
         session.post(url, data=data)
 
         print("login...")
@@ -99,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument('data_path', help='path to your own data used for post method', type=str)
     parser.add_argument('stuid', help='your student number', type=str)
     parser.add_argument('password', help='your CAS password', type=str)
-    # parser.add_argument('jinji', help='紧急联系人', type=str)
+    parser.add_argument('jinji', help='紧急联系人', type=str)
     args = parser.parse_args()
     autorepoter = Report(stuid=args.stuid, password=args.password, data_path=args.data_path, jinji=args.jinji)
     count = 3
