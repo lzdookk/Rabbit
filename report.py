@@ -14,6 +14,7 @@ class Report(object):
         self.stuid = stuid
         self.password = password
         self.data_path = data_path
+        self.jinji = jinji
 
     def report(self):
         session = self.login()
