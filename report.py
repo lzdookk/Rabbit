@@ -38,7 +38,7 @@ class Report(object):
             if getform.url != "https://weixine.ustc.edu.cn/2020/home":
                 print("Login Failed! Retrying...")
             else:
-                print("Login Successful!")
+                print("Login Successful!!")
                 loginsuccess = True
         if not loginsuccess:
             return False
