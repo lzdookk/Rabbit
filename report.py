@@ -9,6 +9,17 @@ import sys
 import argparse
 from bs4 import BeautifulSoup
 
+# encoding=utf8
+import requests
+import json
+import time
+import datetime
+import pytz
+import re
+import sys
+import argparse
+from bs4 import BeautifulSoup
+
 class Report(object):
     def __init__(self, stuid, password, data_path, jinji):
         self.stuid = stuid
@@ -17,10 +28,21 @@ class Report(object):
         self.jinji = jinji
 
     def report(self):
-        session = self.login()
-        cookies = session.cookies
-        data = session.get(
-            "https://weixine.ustc.edu.cn/2020").text
+        loginsuccess = False
+        retrycount = 5
+        while (not loginsuccess) and retrycount:
+            session = self.login()
+            cookies = session.cookies
+            getform = session.get("https://weixine.ustc.edu.cn/2020")
+            retrycount = retrycount - 1
+            if getform.url != "https://weixine.ustc.edu.cn/2020/home":
+                print("Login Failed! Retrying...")
+            else:
+                print("Login Successful!")
+                loginsuccess = True
+        if not loginsuccess:
+            return False
+        data = getform.text
         data = data.encode('ascii','ignore').decode('utf-8','ignore')
         soup = BeautifulSoup(data, 'html.parser')
         token = soup.find("input", {"name": "_token"})['value']
@@ -29,7 +51,7 @@ class Report(object):
             data = f.read()
             data = json.loads(data)
             jinji = self.jinji
-            jinji = json.loads(jinji)       
+            jinji = json.loads(jinji)
             data = {**data, **jinji}
             data["_token"] = token
 
@@ -61,7 +83,7 @@ class Report(object):
             reporttime = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S %z")
             timenow = datetime.datetime.now(pytz.timezone('Asia/Shanghai'))
             delta = timenow - reporttime
-            print(delta.seconds)
+            print("{} second(s) before.".format(delta.seconds))
             if delta.seconds < 120:
                 flag = True
         if flag == False:
@@ -71,34 +93,35 @@ class Report(object):
         return flag
 
     def login(self):
-        url = "https://passport.ustc.edu.cn/login?service=http%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin"
-       
+        url = "https://passport.ustc.edu.cn/login?service=https%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin"
+        session = requests.Session()
+        session.cookies.clear()
+        response = session.get(url)
+        CAS_LT = BeautifulSoup(response.text, 'lxml').find(attrs={'id': 'CAS_LT'}).get('value')
         data = {
             'model': 'uplogin.jsp',
-         
+            'CAS_LT': CAS_LT,
             'service': 'https://weixine.ustc.edu.cn/2020/caslogin',
+            'warn': '',
+            'showCode': '',
             'username': self.stuid,
             'password': str(self.password),
-             'warn': '',
-            'showCode': '',
             'button': '',
         }
-        session = requests.Session()
         session.post(url, data=data)
-
         print("login...")
         return session
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='USTC nCov auto report script.')
+    parser = argparse.ArgumentParser(description='URC nCov auto report script.')
     parser.add_argument('data_path', help='path to your own data used for post method', type=str)
     parser.add_argument('stuid', help='your student number', type=str)
     parser.add_argument('password', help='your CAS password', type=str)
     parser.add_argument('jinji', help='紧急联系人', type=str)
     args = parser.parse_args()
     autorepoter = Report(stuid=args.stuid, password=args.password, data_path=args.data_path, jinji=args.jinji)
-    count = 3
+    count = 5
     while count != 0:
         ret = autorepoter.report()
         if ret != False:
