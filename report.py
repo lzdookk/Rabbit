@@ -29,12 +29,7 @@ class Report(object):
             data = f.read()
             data = json.loads(data)
             jinji = self.jinji
-            jinji = json.loads(jinji)
-            jinji = {
-                "jinji_lxr": "本人",
-                "jinji_guanxi": "本人",
-                "jiji_mobile": "18888888887"
-            }
+            jinji = json.loads(jinji)       
             data = {**data, **jinji}
             data["_token"] = token
 
@@ -77,13 +72,10 @@ class Report(object):
 
     def login(self):
         url = "https://passport.ustc.edu.cn/login?service=http%3A%2F%2Fweixine.ustc.edu.cn%2F2020%2Fcaslogin"
-        session = requests.Session()
-        session.cookies.clear()
-        response = session.get(url)
-        CAS_LT = BeautifulSoup(response.text, 'lxml').find(attrs={'id': 'CAS_LT'}).get('value')
+       
         data = {
             'model': 'uplogin.jsp',
-            'CAS_LT': CAS_LT,
+         
             'service': 'https://weixine.ustc.edu.cn/2020/caslogin',
             'username': self.stuid,
             'password': str(self.password),
@@ -91,7 +83,7 @@ class Report(object):
             'showCode': '',
             'button': '',
         }
-       
+        session = requests.Session()
         session.post(url, data=data)
 
         print("login...")
