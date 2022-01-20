@@ -30,4 +30,5 @@ jobs:
         PASSWORD: ${{ secrets.Password }}
         DATA_FILE: ${{ secrets.DATA }}
       run: |
+        echo "$DATA_FILE" > ./data.json
         python report.py data.json "$STUID" "$PASSWORD" 
